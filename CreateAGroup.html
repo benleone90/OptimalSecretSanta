@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <title>Create A Group</title>
+<link rel="stylesheet" type="text/css" href="CreateAGroup.css">
 
+    
+    <div class="title">
+        <header>
+<h1>
+    Optimal Secret Santa
+</h1>
+</header>
+</div>
+<div class="form">
 <form method="get" action="/html/codes/html_form_handler.cfm">
   <p>
     <label>Name
@@ -19,9 +29,9 @@
       <input type="email" name="email_address">
     </label>
   </p>
-
+</div>
   
-
+<!--
   <p>
     <label>Deadline To Signup Date
       <input type="date" name="Deadline" required>
@@ -39,7 +49,8 @@
       <hr>
       <p>More info: <a href="/html/tags/html_input_tag.cfm"><code>input</code></a>.</p>
   </p>
-
+-->
+<div class="emails">
   <p>
     <label>Enter your secret santas emails
       <textarea name="comments" maxlength="5000"></textarea>
@@ -47,8 +58,7 @@
   </p>
 
   <p><input type="submit" value="Optimize me!"></p>
-
+</div>
 </form>
 
 <hr>
-<p>More info: <a href="/html/tags/html_form_tag.cfm"><code>form</code></a>, <a href="/html/tutorial/html_forms.cfm">HTML Form Tutorial</a>, <a href="/html/codes/html_form_code.cfm">HTML Form Code</a>, <a href="/html/codes/html_form_to_email.cfm">Form to Email</a>.</p>
