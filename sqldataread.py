@@ -2,6 +2,11 @@
 
 import sqlite3
 
+#TO DO:
+#Pull data from SQL and fill data in a "Person" object
+#Create an array of arrays of people, sepaerated by what group the people belong to
+#Integrate with email code
+
 conn = sqlite3.connect('secret_santa_participants.db') #or whatever the name of the file is
 #first column: group_name
 #second column: first_name
