@@ -1,9 +1,9 @@
 #https://www.youtube.com/watch?v=QnDWIZuWYW0
-from flask import Flask, request, redirect, url_for#be sure to include last 2 for token generator
+from flask import Flask, render_template, request, redirect, url_for#be sure to include last 2 for token generator
 from flask_mail import Mail, Message
 #import smtplib#include
 from itsdangerous import URLSafeSerializer#include for url generator
-from threading import Thread
+from threading import Thread#include for asynch emailing
 
 
 app = Flask(__name__) #This is for the app
@@ -17,20 +17,25 @@ app.config.update(#include
 	MAIL_PORT=465,
 	MAIL_USE_SSL=True,
 	MAIL_USERNAME = 'ec327emailb@gmail.com',
-	MAIL_PASSWORD = ,
-    SECRET_KEY = ,
-    MAIL_MAX_EMAILS = 1000
+	MAIL_PASSWORD = '#see me for this ,
+    	SECRET_KEY = #see me for this,
+    	MAIL_MAX_EMAILS = 1000
 	)
 
 mail=Mail(app) #include
 s = URLSafeSerializer(app.config['SECRET_KEY']) #include
 
 
-emails = ['wileyhunt65@gmail.com', 'whunt@bu.edu']
+users = [{'GroupID': '1', 'UUID': '1', 'name': 'wiley', 'email': 'whunt@bu.edu'}, {'GroupID': '1', 'UUID': '2', 'name': 'wiley', 'email': 'wileyhunt65@gmail.com'}]
 
 def generate_token(email): #include
     token = s.dumps(email, salt= 'email-confirm')
     return token
+
+def send_async_email(msg):#send asynch email
+    with app.app_context():
+        mail.send(msg)
+
 
 
 
@@ -44,26 +49,44 @@ def about():
     return 'Hi Ken'
  
 
-@app.route('/bulk/', methods = ['GET']) # actual email
+@app.route('/bulk/', methods = ['GET']) # bulk sending -- slow but reliable
 def bulk():
     if request.method == 'GET':
         with mail.connect() as conn:
             try:
-                for email in emails:
-                    token = generate_token(email)
+                for user in users:
+                    token = generate_token(user['email'])
                     link = url_for('wishlist', token = token, _external = True)
                     msg = Message('Hello from Optimal Secret Santa!',#subject
                     sender = 'ec327emailb@gmail.com',
-                    recipients= [email])
-                    msg.body = f"Ho ho ho! \n You have been added to a new Secret Santa Group.\nHere's a link to enter your wishlist for YOUR Secret Santa: {link}"
+                    recipients= [user['email']])
+                    msg.body = F"Hi {user['name']}\nGreetings from the North Pole!\nYou have been added to a Secret Santa group created on OptimalSecretSanta.com.nPlease use the below link (along with your personal and group identifier) to fill out the wishlist/message you would like to send your Secret Santa\n\nLink:{link}\nGroupID: {user['GroupID']}\nUserID: {user['UUID']}\n\nHappy Holidays!\n\nSincerely,\nOptimalSecretSanta."
+                    #msg.html = render_template('/msg.html', name = user['name'], GroupId = user['GroupID'], UUID = user['UUID'], link=link)
                     conn.send(msg)
-                    # mail.send(msg)
                 return 'Emails Sent!'
             except Exception as e:
                 return str(e)
     else:
         return "Invalid"
 
+@app.route('/send/', methods = ['GET']) # asynchrnous sending -- fast but no immediate error messages
+def send():
+    if request.method == 'GET':
+        try:
+            for user in users:
+                token = generate_token(user['email'])
+                link = url_for('wishlist', token = token, _external = True)
+                msg = Message('Hello from Optimal Secret Santa!',#subject
+                sender = 'ec327emailb@gmail.com',
+                recipients= [user['email']])
+                msg.body = F"Hi {user['name']}\nGreetings from the North Pole!\nYou have been added to a Secret Santa group created on OptimalSecretSanta.com.nPlease use the below link (along with your personal and group identifier) to fill out the wishlist/message you would like to send your Secret Santa\n\nLink:{link}\nGroupID: {user['GroupID']}\nUserID: {user['UUID']}\n\nHappy Holidays!\n\nSincerely,\nOptimalSecretSanta"
+                thr = Thread(target=send_async_email, args=[msg])
+                thr.start()
+            return 'Emails Sent!'
+        except Exception as e:
+            return str(e)
+    else:
+        return "Invalid"
 
 
 
@@ -72,4 +95,4 @@ def wishlist():
     return 'Hi Ken'
 
 if __name__== '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
