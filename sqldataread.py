@@ -37,3 +37,5 @@ for key in people:
     person_var = people[key]
     person_var_recipients_email = person_var.recipient_email
     person_var_recipient_name = people[person_var_recipients_email].email
+    
+    #email code goes in this loop. can easily add wishlist if need be
