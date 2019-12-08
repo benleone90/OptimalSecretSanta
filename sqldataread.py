@@ -1,7 +1,15 @@
-import sqlite3
+import psycopg2
 
-conn = sqlite3.connect('secret_santa_participants.db') #or whatever the name of the file is
+try:
+    conn = psycopg2.connect("dbname='template1' user='dbuser' host='localhost' password='dbpass'") #might only need dbname and user?
+except:
+    print("FAILURE TO CONNECT TO DATABASE")
+    exit()
 
+curr = conn.cursor() #open cursor for operations
+curr.execute("""SELECT * from template1""") # select all data from db
+
+records = curr.fetchall() #set records to pull all data from database
 
 #EXAMPLE:
 #first column: group_name
@@ -9,9 +17,7 @@ conn = sqlite3.connect('secret_santa_participants.db') #or whatever the name of 
 #third column: email
 #fourth columnm recipients' email
 
-
-cursor = conn.cursor()
-print("Sucessfully connected to database")
+people = {} #empty dictionary. The keys will be the emails of people
 
 class Person:
     def _init_(self, group_name , person_name , email , recipient):
@@ -19,13 +25,6 @@ class Person:
         self.person_name = person_name #The persons name
         self.email = email #The person email
         self.recipient_email = recipient_email #Who the person is giffting (MUST BE OF PERSON DATA TYPE)
-
-people = {} #empty dictionary. The keys will be the emails of people
-
-select_query = """SELECT * from Contacts""" # "Contacts" is name of table in example
-cursor.execute(select_query)
-records = cursor.fetchall() #set records to pull all data from database
-print("Total rows are: ", len(records))
 
 for row in records:
     temp_person = Person(row[0] , row[1] , row[2] , row[3])
@@ -37,5 +36,5 @@ for key in people:
     person_var = people[key]
     person_var_recipients_email = person_var.recipient_email
     person_var_recipient_name = people[person_var_recipients_email].email
-    
-    #email code goes in this loop. can easily add wishlist if need be
+
+    #run email code in this loop
