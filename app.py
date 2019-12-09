@@ -120,7 +120,7 @@ for key in people:
     user_email = people[key].email #The user's email
     user_partner_email = people[key].partner_email #The email of the user's recipient
     user_partner_name = people[user_partner_email].member #The name of the user's recipient
-    user_partner_wishlist = people[user_partner_email].wishlist
+    user_partner_wishlist = people[user_partner_email].wishlist #The wishlist of the user's recipient
     
     #ENTER EMAIL CODE HERE IN LOOP
 #####################################################################
