@@ -6,6 +6,8 @@ from threading import Thread  # added by Wiley for asynch emailing
 # from sqlalchemy.dialects.postgresql import UUID
 from flask_sqlalchemy import SQLAlchemy
 import random
+#added to create engine:
+from sqlalchemy import create_engine
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -83,6 +85,45 @@ def generate_pairings(emails):
     for a, b in assignments.items():
         pairs[f[a]] = b
     return pairs
+
+def send_thread_email(msg):#added by Wiley
+    with app.app_context():
+        mail.send(msg)
+
+###########################################################################################################
+try:
+    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    records = engine.execute('SELECT * FROM "secretsanta"').fetchall()
+except:
+    print("FAILURE TO CONNECT TO DATABASE")
+    exit()
+
+print("CONNECTED TO DATABASE")
+
+people = {} #empty dictionary. The keys will be the emails of people
+
+class Person:
+    def __init__(self, member , email , partner_email, wishlist):
+        self.member = member #The persons name
+        self.email = email #The person email
+        self.partner_email = partner_email #Who the person is giffting
+        self.wishlist = wishlist #The person's wishlist
+
+for row in records:
+    temp_person = Person(row['member'] , row['email'] , row['partner'] , row['wishlist'])
+    people[temp_person.email] = temp_person #each email(ie. key) is unique so nothing in dictionary will get overwritten
+
+#In order to send emails out, loop through the dictionary:
+
+for key in people:
+    user_member = people[key].member #The user's name
+    user_email = people[key].email #The user's email
+    user_partner_email = people[key].partner_email #The email of the user's recipient
+    user_partner_name = people[user_partner_email].member #The name of the user's recipient
+    user_partner_wishlist = people[user_partner_email].wishlist
+    
+    #ENTER EMAIL CODE HERE IN LOOP
+#####################################################################
 
 
 @app.route('/')
