@@ -150,19 +150,35 @@ def submit():
                     print("FAILURE TO CONNECT TO DATABASE")
                     exit()
 
-                for row in records['partner']:
-                    if row == email:
-                        who_to_email = records[row]['email'] #who we are emailing
+                    
+                for i in records:
+                    if i['partner'] == email: #if the entered email is at row index i in 'partner' column, who to email is at that same index in 'email' column
+                        who_to_email = records[i]['email'] #who we email
+                        name_of_who_to_email = records[i]['member'] #name of who we email
                         break
                     else:
                         continue
+
+                for j in records:
+                    if j['email'] == email: #if the entered email is at row index i in 'email' column, the name of the target is at that same index in 'member' column
+                        name_of_secret_santa = records[j]['member'] #NAme of persons secret santa
+                        break
+                    else:
+                        continue  
+                    
+                #for row in records['partner']:
+                #    if row == email:
+                #        who_to_email = records[row]['email'] #who we are emailing
+                #        break
+                #    else:
+                #        continue
                         
-                for other_row in records['email']:
-                    if other_row == email
-                        name_of_secret_santa = records[other_row]['member'] #the name of the person who submitted the wishlist
-                        break
-                    else:
-                        continue
+                #for other_row in records['email']:
+                #    if other_row == email
+                #        name_of_secret_santa = records[other_row]['member'] #the name of the person who submitted the wishlist
+                #        break
+                #    else:
+                #        continue
 
                     msg = Message('Your Secret Santa Assignment is in!',  # subject
                                   sender='OptimalSecretSanta@gmail.com',
