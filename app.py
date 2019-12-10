@@ -152,8 +152,15 @@ def submit():
 
                 for row in records['partner']:
                     if row == email:
-                        who_to_email = records[row]['email']
-                        name_of_who_to_email = records[row]['member']
+                        who_to_email = records[row]['email'] #who we are emailing
+                        break
+                    else:
+                        continue
+                        
+                for other_row in records['email']:
+                    if other_row == email
+                        name_of_secret_santa = records[other_row]['member'] #the name of the person who submitted the wishlist
+                        break
                     else:
                         continue
 
