@@ -9,6 +9,15 @@ import random
 #added to create engine:
 from sqlalchemy import create_engine
 
+
+class Person:
+    def __init__(self, member , email , partner_email, partner_wishlist):
+        self.member = member #The persons name
+        self.email = email #The person email
+        self.partner_email = partner_email #Who the person is giffting
+        self.partner_wishlist = partner_wishlist #The partner's wishlist
+
+
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
@@ -91,38 +100,27 @@ def send_thread_email(msg):#added by Wiley
         mail.send(msg)
 
 ###########################################################################################################
-try:
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-    records = engine.execute('SELECT * FROM "secretsanta"').fetchall()
-except:
-    print("FAILURE TO CONNECT TO DATABASE")
-    exit()
 
-print("CONNECTED TO DATABASE")
+ #each email(ie. key) is unique so nothing in dictionary will get overwritten
 
-people = {} #empty dictionary. The keys will be the emails of people
 
-class Person:
-    def __init__(self, member , email , partner_email, wishlist):
-        self.member = member #The persons name
-        self.email = email #The person email
-        self.partner_email = partner_email #Who the person is giffting
-        self.wishlist = wishlist #The person's wishlist
+#####################################################################################################
+#people dictionary is filled at this point, wich each email acting as a key for each person
 
-for row in records:
-    temp_person = Person(row['member'] , row['email'] , row['partner'] , row['wishlist'])
-    people[temp_person.email] = temp_person #each email(ie. key) is unique so nothing in dictionary will get overwritten
+#for key in people:
+#    user_member = people[key].member #The user's name
+#    user_email = people[key].email #The user's email (could just as easily use key instead of people[key].email)
+#    user_partner_email = people[key].partner_email #The email of the user's recipient
+#    user_partner_name = people[user_partner_email].member #The name of the user's recipient
+#    user_partner_wishlist = people[user_partner_email].wishlist #The wishlist of the user's recipient
 
-#In order to send emails out, loop through the dictionary:
+#    msg = Message('Hello from Optimal Secret Santa!',  # subject
+#                  sender='OptimalSecretSanta@gmail.com',
+#                  recipients=[user_email])
+#    msg.body = F"Hi {user_member},\n\nGreetings from the North Pole!\n\nYour Secret Santa is {user_partner_name}.\n\nPlease use the below link to fill out the wishlist/message you would like to send your Secret Santa.\n\nLink:{link}\n\nHappy Holidays!\n\nSincerely,\nOptimalSecretSanta"
+#    thr = Thread(target=send_thread_email, args=[msg])
+#    thr.start()
 
-for key in people:
-    user_member = people[key].member #The user's name
-    user_email = people[key].email #The user's email
-    user_partner_email = people[key].partner_email #The email of the user's recipient
-    user_partner_name = people[user_partner_email].member #The name of the user's recipient
-    user_partner_wishlist = people[user_partner_email].wishlist #The wishlist of the user's recipient
-    
-    #ENTER EMAIL CODE HERE IN LOOP
 #####################################################################
 
 
@@ -143,17 +141,26 @@ def submit():
             if member[ii] == '' or email[ii] == '':
                 return render_template('index.html', message='Please ensure all fields are entered')
             # elif: // Email validation goes here (Using email-validator pkg from pip)
+
             else:
-                if db.session.query(SecretSanta).filter(SecretSanta.email == email[ii]).count() == 0:
-                    data = SecretSanta(
-                        member=member[ii], email=email[ii], partner=pair[ii])
-                    db.session.add(data)
-                    token = generate_token(email[ii])  # wiley add start
-                    link = url_for('wishlist', token=token, _external=True)
+                try:
+                    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+                    records = engine.execute('SELECT * FROM "secretsanta"').fetchall()
+                except:
+                    print("FAILURE TO CONNECT TO DATABASE")
+                    exit()
+
+                for row in records['partner']:
+                    if row == email:
+                        who_to_email = records[row]['email']
+                        name_of_who_to_email = records[row]['member']
+                    else:
+                        continue
+
                     msg = Message('Hello from Optimal Secret Santa!',  # subject
                                   sender='OptimalSecretSanta@gmail.com',
-                                  recipients=[email[ii]])
-                    msg.body = F"Hi {member[ii]},\n\nGreetings from the North Pole!\n\nYou have been added to a Secret Santa group created on optimal-secret-santa.herokuapp.com.\n\nPlease use the below link to fill out the wishlist/message you would like to send your Secret Santa.\n\nLink:{link}\n\nHappy Holidays!\n\nSincerely,\nOptimalSecretSanta"
+                                  recipients=[who_to_email])
+                    msg.body = F"Hi {name_of_who_to_email},\n\nGreetings from the North Pole!\n\nYou have been added to a Secret Santa group created on optimal-secret-santa.herokuapp.com.\n\nPlease use the below link to fill out the wishlist/message you would like to send your Secret Santa.\n\nLink:{link}\n\nHappy Holidays!\n\nSincerely,\nOptimalSecretSanta"
                     thr = Thread(target=send_thread_email, args=[msg])
                     thr.start()  # wiley add end
                 else:
