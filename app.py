@@ -164,10 +164,10 @@ def submit():
                     else:
                         continue
 
-                    msg = Message('Hello from Optimal Secret Santa!',  # subject
+                    msg = Message('Your Secret Santa Assignment is in!',  # subject
                                   sender='OptimalSecretSanta@gmail.com',
                                   recipients=[who_to_email])
-                    msg.body = F"Hi {name_of_who_to_email},\n\nGreetings from the North Pole!\n\nYou have been added to a Secret Santa group created on optimal-secret-santa.herokuapp.com.\n\nPlease use the below link to fill out the wishlist/message you would like to send your Secret Santa.\n\nLink:{link}\n\nHappy Holidays!\n\nSincerely,\nOptimalSecretSanta"
+                    msg.body = F"Hi {name_of_who_to_email},\n\n You have been assigned as the Secret Santa for {name_of_secret_santa}.Their wishlist is included below: \n\n{wishslist}\n\nHappy Holidays!\n\nSincerely,\nOptimalSecretSanta"
                     thr = Thread(target=send_thread_email, args=[msg])
                     thr.start()  # wiley add end
                 else:
